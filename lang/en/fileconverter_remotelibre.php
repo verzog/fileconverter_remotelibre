@@ -30,4 +30,4 @@ $string['pluginname'] = 'Remote LibreOffice';
 $string['privacy:metadata:remotelibre'] = 'To convert documents to PDF, files are sent to the configured remote render service.';
 $string['privacy:metadata:remotelibre:file'] = 'The uploaded document to be converted is sent to the remote render service.';
 $string['url'] = 'Convert endpoint URL';
-$string['url_desc'] = 'The full URL of the render service\'s convert endpoint, for example https://render.example.org/render/convert';
+$string['url_desc'] = 'The full HTTPS URL of the render service\'s convert endpoint, for example https://render.example.org/render/convert. Plain HTTP is rejected, since the API key and document contents are sent to it.';

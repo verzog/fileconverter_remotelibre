@@ -37,10 +37,30 @@ class converter implements \core_files\converter_interface {
     /**
      * Whether the environment can run this converter.
      *
-     * @return bool True when the HTTP client Moodle needs is available.
+     * Requires cURL and a usable endpoint, so an unconfigured converter is not
+     * offered for formats it would only ever fail to convert.
+     *
+     * @return bool True when cURL is available and an HTTPS endpoint is set.
      */
     public static function are_requirements_met() {
-        return function_exists('curl_init');
+        return function_exists('curl_init') && self::endpoint() !== '';
+    }
+
+    /**
+     * The configured convert endpoint, but only when it is usable.
+     *
+     * Returns '' unless both the URL and API key are set and the URL uses HTTPS
+     * -- the API key and document contents must never travel over plain HTTP.
+     *
+     * @return string The HTTPS endpoint URL, or '' when not usable.
+     */
+    private static function endpoint() {
+        $url = trim((string) get_config('fileconverter_remotelibre', 'url'));
+        $apikey = (string) get_config('fileconverter_remotelibre', 'apikey');
+        if ($url === '' || $apikey === '' || !preg_match('#^https://#i', $url)) {
+            return '';
+        }
+        return $url;
     }
 
     /**
@@ -61,13 +81,13 @@ class converter implements \core_files\converter_interface {
      * @return $this
      */
     public function start_document_conversion(conversion $conversion) {
-        $endpoint = trim((string) get_config('fileconverter_remotelibre', 'url'));
-        $apikey = (string) get_config('fileconverter_remotelibre', 'apikey');
-        if ($endpoint === '' || $apikey === '') {
+        $endpoint = self::endpoint();
+        if ($endpoint === '') {
             $conversion->set('status', conversion::STATUS_FAILED);
-            debugging('fileconverter_remotelibre is not configured (url/apikey).', DEBUG_DEVELOPER);
+            debugging('fileconverter_remotelibre is not configured, or the endpoint is not HTTPS.', DEBUG_DEVELOPER);
             return $this;
         }
+        $apikey = (string) get_config('fileconverter_remotelibre', 'apikey');
 
         if ($conversion->get('targetformat') !== 'pdf') {
             $conversion->set('status', conversion::STATUS_FAILED);
