@@ -26,7 +26,6 @@ use core_files\conversion;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class converter implements \core_files\converter_interface {
-
     /** @var string[] Source extensions this converter can turn into PDF. */
     const SUPPORTED = [
         'pptx', 'ppt', 'odp',
