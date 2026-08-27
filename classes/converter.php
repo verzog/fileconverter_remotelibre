@@ -95,25 +95,48 @@ class converter implements \core_files\converter_interface {
         }
 
         $file = $conversion->get_sourcefile();
+        $dest = make_request_directory() . '/output.pdf';
+        $handle = fopen($dest, 'w');
+
         $curl = new \curl();
         $curl->setHeader('Authorization: Bearer ' . $apikey);
         $curl->setHeader('X-Filename: ' . $file->get_filename());
         $curl->setHeader('Content-Type: application/octet-stream');
+        // Stream the response to a file so a large PDF is not also held as a
+        // string. If the platform ignores CURLOPT_FILE, curl's default
+        // RETURNTRANSFER still hands the body back and the fallback below stores
+        // that instead -- so behaviour never silently regresses.
         $response = $curl->post($endpoint, $file->get_content(), [
-            'CURLOPT_RETURNTRANSFER' => true,
             'CURLOPT_TIMEOUT' => 200,
             'CURLOPT_CONNECTTIMEOUT' => 10,
+            'CURLOPT_FILE' => $handle,
         ]);
+        if (is_resource($handle)) {
+            fclose($handle);
+        }
 
-        $info = $curl->get_info();
-        $httpcode = (int) ($info['http_code'] ?? 0);
-        if ($curl->get_errno() || $httpcode !== 200 || substr((string) $response, 0, 5) !== '%PDF-') {
+        $httpcode = (int) ($curl->get_info()['http_code'] ?? 0);
+        if ($curl->get_errno() || $httpcode !== 200) {
             $conversion->set('status', conversion::STATUS_FAILED);
             debugging('fileconverter_remotelibre conversion failed (HTTP ' . $httpcode . ').', DEBUG_DEVELOPER);
             return $this;
         }
 
-        $conversion->store_destfile_from_string($response);
+        if (filesize($dest) > 0) {
+            if (file_get_contents($dest, false, null, 0, 5) !== '%PDF-') {
+                $conversion->set('status', conversion::STATUS_FAILED);
+                debugging('fileconverter_remotelibre: response was not a PDF.', DEBUG_DEVELOPER);
+                return $this;
+            }
+            $conversion->store_destfile_from_path($dest);
+        } else if (is_string($response) && substr($response, 0, 5) === '%PDF-') {
+            $conversion->store_destfile_from_string($response);
+        } else {
+            $conversion->set('status', conversion::STATUS_FAILED);
+            debugging('fileconverter_remotelibre: response was not a PDF.', DEBUG_DEVELOPER);
+            return $this;
+        }
+
         $conversion->set('status', conversion::STATUS_COMPLETE);
         return $this;
     }
