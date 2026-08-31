@@ -45,7 +45,10 @@ PDF as the conversion's destination file. Conversions are synchronous, so
 ## Privacy
 
 To convert a document, its bytes are transmitted to the configured external
-render service. The plugin stores no personal data in Moodle itself; the
-transmission is declared in its privacy metadata.
+render service. To minimise what leaves Moodle, the request sends only a
+**content hash plus the file extension** as the filename hint — never the real
+filename (which can carry a student's name or the assignment title) and no user
+identity. The plugin stores no personal data in Moodle itself; the transmission
+is declared in its privacy metadata.
 
 Licensed GPL-3.0-or-later.

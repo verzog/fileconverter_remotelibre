@@ -98,9 +98,15 @@ class converter implements \core_files\converter_interface {
         $dest = make_request_directory() . '/output.pdf';
         $handle = fopen($dest, 'w');
 
+        // Data minimisation: send only what the service needs to pick an import
+        // filter -- the content hash plus the extension -- never the real
+        // filename, which can carry a student's name or the assignment title.
+        $ext = strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION));
+        $sentname = $file->get_contenthash() . ($ext !== '' ? '.' . $ext : '');
+
         $curl = new \curl();
         $curl->setHeader('Authorization: Bearer ' . $apikey);
-        $curl->setHeader('X-Filename: ' . $file->get_filename());
+        $curl->setHeader('X-Filename: ' . $sentname);
         $curl->setHeader('Content-Type: application/octet-stream');
         // Stream the response to a file so a large PDF is not also held as a
         // string. If the platform ignores CURLOPT_FILE, curl's default
