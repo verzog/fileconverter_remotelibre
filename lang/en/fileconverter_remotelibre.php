@@ -28,6 +28,6 @@ $string['apikey'] = 'API key';
 $string['apikey_desc'] = 'The bearer token the render service expects in the Authorization header.';
 $string['pluginname'] = 'Remote LibreOffice';
 $string['privacy:metadata:remotelibre'] = 'To convert documents to PDF, file contents are sent to the configured remote render service.';
-$string['privacy:metadata:remotelibre:file'] = 'The document\'s content is sent to the remote render service for conversion. The real filename is not sent -- only a content hash and the file extension -- and no user identity is transmitted.';
+$string['privacy:metadata:remotelibre:file'] = 'The document\'s content is sent to the remote render service for conversion. The real filename is not sent -- only a content hash and the file extension -- and no separate Moodle user identifier is added to the request. (The document\'s own content may still contain identifying information.)';
 $string['url'] = 'Convert endpoint URL';
 $string['url_desc'] = 'The full HTTPS URL of the render service\'s convert endpoint, for example https://render.example.org/render/convert. Plain HTTP is rejected, since the API key and document contents are sent to it.';
