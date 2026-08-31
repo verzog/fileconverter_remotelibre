@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'fileconverter_remotelibre';
-$plugin->version   = 2026082700;
+$plugin->version   = 2026083100;
 $plugin->requires  = 2022112800;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '0.1.0';
+$plugin->release   = '0.1.1';
