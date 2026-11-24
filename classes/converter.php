@@ -116,6 +116,10 @@ class converter implements \core_files\converter_interface {
             'CURLOPT_TIMEOUT' => 200,
             'CURLOPT_CONNECTTIMEOUT' => 10,
             'CURLOPT_FILE' => $handle,
+            // Moodle's curl class does not verify certificates by default; this request
+            // carries the API key and the student's file, so always verify.
+            'CURLOPT_SSL_VERIFYPEER' => true,
+            'CURLOPT_SSL_VERIFYHOST' => 2,
         ]);
         if (is_resource($handle)) {
             fclose($handle);
